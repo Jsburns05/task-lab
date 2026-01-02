@@ -3,10 +3,12 @@ import React, { useEffect, useMemo, useState } from "react";
 import {
   Alert,
   FlatList,
+  Platform,
   Pressable,
   SafeAreaView,
   StyleSheet, Text, TextInput, View
 } from "react-native";
+import { exportJobsCsv } from "../src/exportCsv";
 import { loadJobs, loadPin } from "../src/storage";
 import { theme } from "../src/theme";
 import type { Job } from "../src/types";
@@ -103,18 +105,46 @@ export default function Home() {
         </View>
 
         <View style={styles.headerBtns}>
-          <Link href="/settings" asChild>
-            <Pressable style={styles.btnGhost}>
-              <Text style={styles.btnGhostText}>Settings</Text>
-            </Pressable>
-          </Link>
+  <Pressable
+    style={styles.btnGhost}
+    onPress={async () => {
+  try {
+    const result = await exportJobsCsv(jobs);
 
-          <Link href="/add-job" asChild>
-            <Pressable style={styles.btnPrimary}>
-              <Text style={styles.btnPrimaryText}>+ Add</Text>
-            </Pressable>
-          </Link>
-        </View>
+    if (Platform.OS === "web") {
+      // RN Alert often doesn't show on web
+      window.alert(`CSV downloaded: ${result.filename}`);
+    } else {
+      Alert.alert("Exported", `Saved/share: ${result.filename}`);
+    }
+  } catch (e: any) {
+    console.error("CSV export failed:", e);
+
+    if (Platform.OS === "web") {
+      window.alert(`Export failed: ${e?.message ?? e}`);
+    } else {
+      Alert.alert("Export failed", e?.message ?? "Unknown error");
+    }
+  }
+}}
+
+  >
+    <Text style={styles.btnGhostText}>Export</Text>
+  </Pressable>
+
+  <Link href="/settings" asChild>
+    <Pressable style={styles.btnGhost}>
+      <Text style={styles.btnGhostText}>Settings</Text>
+    </Pressable>
+  </Link>
+
+  <Link href="/add-job" asChild>
+    <Pressable style={styles.btnPrimary}>
+      <Text style={styles.btnPrimaryText}>+ Add</Text>
+    </Pressable>
+  </Link>
+</View>
+
       </View>
 
       {jobs.length === 0 ? (
