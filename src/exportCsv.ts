@@ -2,6 +2,7 @@ import * as FileSystem from "expo-file-system";
 import * as Sharing from "expo-sharing";
 import { Platform } from "react-native";
 import type { Job } from "./types";
+const DEFAULT_MILEAGE_RATE = 0.67; // dollars per mile (edit as needed)
 
 function escapeCsv(value: unknown) {
   const s = String(value ?? "");
@@ -20,7 +21,10 @@ function jobsToCsv(jobs: Job[]) {
   "flatRate",
   "materials",
   "miles",
+  "mileageRate",
+  "mileageDeduction",
   "net",
+  "netAfterMileage",
   "total",
 ];
 
@@ -28,8 +32,15 @@ function jobsToCsv(jobs: Job[]) {
   const rows = jobs.map((j) => {
     const date = new Date(j.createdAt).toISOString();
     const materials = j.materials ?? 0;
+const miles = j.miles ?? 0;
+
 const total = (j.flatRate || 0) + materials;
 const net = (j.flatRate || 0) - materials;
+
+const mileageRate = DEFAULT_MILEAGE_RATE;
+const mileageDeduction = miles * mileageRate;
+
+const netAfterMileage = net - mileageDeduction;
 
 return [
   j.id,
@@ -40,9 +51,13 @@ return [
   j.flatRate,
   j.materials ?? "",
   j.miles ?? "",
+  mileageRate,
+  mileageDeduction,
   net,
+  netAfterMileage,
   total,
 ].map(escapeCsv);
+
 
   });
 
