@@ -97,19 +97,43 @@ export default function JobDetail() {
 const styles = StyleSheet.create({
   screen: { flex: 1, padding: 16, backgroundColor: theme.bg },
   card: {
-    padding: 16,
-    borderRadius: 16,
-    backgroundColor: theme.card,
-    borderWidth: 1,
-    borderColor: theme.border,
-    gap: 8,
-  },
-  title: { color: theme.text, fontSize: 24, fontWeight: "900" },
-  sub: { color: theme.subtext },
-  divider: { height: 1, backgroundColor: theme.border, marginVertical: 8 },
-  label: { color: theme.subtext, fontWeight: "800", marginTop: 6 },
-  value: { color: theme.text, marginTop: 2 },
-  total: { color: theme.accent, fontSize: 18, fontWeight: "900" },
+  padding: 16,
+  borderRadius: 16,
+  backgroundColor: theme.card,
+  borderWidth: 1,
+  borderColor: theme.border,
+  gap: 8,
+  alignItems: "center",
+},
+
+  title: {
+  color: theme.text,
+  fontSize: 24,
+  fontWeight: "900",
+  textAlign: "center",
+},
+sub: {
+  color: theme.subtext,
+  textAlign: "center",
+},
+label: {
+  color: theme.subtext,
+  fontWeight: "800",
+  marginTop: 6,
+  textAlign: "center",
+},
+value: {
+  color: theme.text,
+  marginTop: 2,
+  textAlign: "center",
+},
+total: {
+  color: theme.accent,
+  fontSize: 18,
+  fontWeight: "900",
+  textAlign: "center",
+},
+
   row: { flexDirection: "row", gap: 10, marginTop: 12 },
   btnGhost: {
     flex: 1,

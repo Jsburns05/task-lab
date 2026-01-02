@@ -6,28 +6,25 @@ import {
   Platform,
   Pressable,
   SafeAreaView,
-  StyleSheet, Text, TextInput, View
+  StyleSheet, Text,
+  View
 } from "react-native";
 import { exportJobsCsv } from "../src/exportCsv";
-import { loadJobs, loadPin } from "../src/storage";
+import { loadJobs } from "../src/storage";
 import { theme } from "../src/theme";
 import type { Job } from "../src/types";
 
 export default function Home() {
   const router = useRouter();
   const [jobs, setJobs] = useState<Job[]>([]);
-  const [locked, setLocked] = useState(false);
-  const [pinInput, setPinInput] = useState("");
+  
 
   async function refresh() {
-    const [j, p] = await Promise.all([loadJobs(), loadPin()]);
-    j.sort((a, b) => b.createdAt - a.createdAt);
-    setJobs(j);
+  const j = await loadJobs();
+  j.sort((a, b) => b.createdAt - a.createdAt);
+  setJobs(j);
+}
 
-    // Lock only if a PIN exists AND we haven't unlocked yet during this session
-    setLocked((prev) => prev || !!p);
-    setPinInput("");
-  }
 
   useEffect(() => {
     refresh();
@@ -46,52 +43,9 @@ export default function Home() {
     return { income, materials, miles };
   }, [jobs]);
 
-  async function unlockAttempt(pin: string) {
-    const saved = await loadPin();
-    if (!saved) {
-      setLocked(false);
-      return;
-    }
-    if (pin === saved) {
-      setLocked(false);
-      setPinInput("");
-    } else {
-      Alert.alert("Wrong PIN", "Try again.");
-      setPinInput("");
-    }
-  }
+  
 
-  useEffect(() => {
-    if (pinInput.length === 4) unlockAttempt(pinInput);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pinInput]);
-
-  if (locked) {
-    return (
-      <SafeAreaView style={styles.screen}>
-        <View style={styles.card}>
-          <Text style={styles.title}>Enter PIN</Text>
-          <Text style={styles.sub}>Task.Lab is locked</Text>
-
-          <TextInput
-            value={pinInput}
-            onChangeText={(t) => setPinInput(t.replace(/\D/g, "").slice(0, 4))}
-            keyboardType="number-pad"
-            secureTextEntry
-            placeholder="••••"
-            placeholderTextColor={theme.subtext}
-            style={styles.input}
-          />
-
-          <Link href="/settings" asChild>
-            <Pressable style={styles.btnGhost}>
-              <Text style={styles.btnGhostText}>Settings</Text>
-            </Pressable>
-          </Link>
-        </View>
-      </SafeAreaView>
-    );
-  }
+  
 
   return (
     <SafeAreaView style={styles.screen}>
@@ -187,33 +141,72 @@ export default function Home() {
 const styles = StyleSheet.create({
   screen: { flex: 1, padding: 16, backgroundColor: theme.bg },
   headerRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    gap: 12,
-    marginBottom: 12,
-  },
-  headerBtns: { flexDirection: "row", gap: 10, alignItems: "center" },
+  flexDirection: "column",
+  alignItems: "center",
+  justifyContent: "center",
+  gap: 12,
+  marginBottom: 12,
+},
 
-  title: { color: theme.text, fontSize: 28, fontWeight: "800" },
-  sub: { color: theme.subtext, marginTop: 4 },
+  headerBtns: {
+  flexDirection: "row",
+  gap: 10,
+  alignItems: "center",
+  justifyContent: "center",
+},
+
+
+  title: {
+  color: theme.text,
+  fontSize: 28,
+  fontWeight: "800",
+  textAlign: "center",
+},
+sub: {
+  color: theme.subtext,
+  marginTop: 4,
+  textAlign: "center",
+},
+
 
   jobCard: {
-    flexDirection: "row",
-    gap: 12,
-    alignItems: "center",
-    padding: 14,
-    borderRadius: 14,
-    backgroundColor: theme.card,
-    borderWidth: 1,
-    borderColor: theme.border,
-    marginTop: 10,
-  },
-  jobTitle: { color: theme.text, fontSize: 16, fontWeight: "700" },
-  jobSub: { color: theme.subtext, marginTop: 2 },
-  jobMeta: { color: theme.subtext, marginTop: 6, fontSize: 12 },
+  flexDirection: "column",
+  alignItems: "center",
+  justifyContent: "center",
+  padding: 14,
+  borderRadius: 14,
+  backgroundColor: theme.card,
+  borderWidth: 1,
+  borderColor: theme.border,
+  marginTop: 10,
+  textAlign: "center",
+},
 
-  money: { color: theme.accent, fontWeight: "800", fontSize: 16 },
+  jobTitle: {
+  color: theme.text,
+  fontSize: 16,
+  fontWeight: "700",
+  textAlign: "center",
+},
+jobSub: {
+  color: theme.subtext,
+  marginTop: 2,
+  textAlign: "center",
+},
+jobMeta: {
+  color: theme.subtext,
+  marginTop: 6,
+  fontSize: 12,
+  textAlign: "center",
+},
+money: {
+  color: theme.accent,
+  fontWeight: "800",
+  fontSize: 16,
+  marginTop: 8,
+  textAlign: "center",
+},
+
 
   btnGhost: {
     paddingHorizontal: 12,
@@ -238,28 +231,35 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     borderWidth: 1,
     borderColor: theme.border,
+    alignItems: "center",
   },
 
   card: {
-    marginTop: 60,
-    padding: 16,
-    borderRadius: 16,
-    backgroundColor: theme.card,
-    borderWidth: 1,
-    borderColor: theme.border,
-  },
-  input: {
-    marginTop: 12,
-    borderWidth: 1,
-    borderColor: theme.border,
-    borderRadius: 12,
-    paddingHorizontal: 12,
-    paddingVertical: 12,
-    color: theme.text,
-    fontSize: 18,
-    letterSpacing: 10,
-    textAlign: "center",
-  },
+  padding: 16,
+  borderRadius: 16,
+  backgroundColor: theme.card,
+  borderWidth: 1,
+  borderColor: theme.border,
+  gap: 10,
+  alignItems: "center",
+},
+label: {
+  color: theme.subtext,
+  fontWeight: "700",
+  textAlign: "center",
+  width: "100%",
+},
+input: {
+  borderWidth: 1,
+  borderColor: theme.border,
+  borderRadius: 12,
+  paddingHorizontal: 12,
+  paddingVertical: 12,
+  color: theme.text,
+  width: "100%",
+  textAlign: "center",
+},
+
 });
 
 

@@ -3,7 +3,7 @@ import type { Job } from "./types";
 
 const KEYS = {
   JOBS: "tasklab.jobs.v1",
-  PIN: "tasklab.pin.v1",
+  
 };
 
 export async function loadJobs(): Promise<Job[]> {
@@ -21,15 +21,4 @@ export async function saveJobs(jobs: Job[]) {
   await AsyncStorage.setItem(KEYS.JOBS, JSON.stringify(jobs));
 }
 
-export async function loadPin(): Promise<string | null> {
-  const pin = await AsyncStorage.getItem(KEYS.PIN);
-  return pin ?? null;
-}
 
-export async function savePin(pin: string) {
-  await AsyncStorage.setItem(KEYS.PIN, pin);
-}
-
-export async function clearPin() {
-  await AsyncStorage.removeItem(KEYS.PIN);
-}
